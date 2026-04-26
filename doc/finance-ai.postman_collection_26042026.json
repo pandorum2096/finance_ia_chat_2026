@@ -1,0 +1,126 @@
+{
+  "info": {
+    "_postman_id": "eafc9f72-7fb4-4d8b-a214-8c7ababa3fa2",
+    "name": "finance-ai",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "8561720"
+  },
+  "item": [
+    {
+      "name": "chat",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"user_id\": \"abdoul_junior\",\r\n  \"message\": \"liste mes depenses\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/chat",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "chat"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ajouter-actif",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "// {\r\n//     \"user_id\": \"abdoul_junior\",\r\n//     \"nom\": \"Fonds de Sécurité\",\r\n//     \"valeur\": 600000, \r\n//     \"categorie\": \"Épargne\"\r\n// }\r\n// {\r\n//   \"user_id\": \"abdoul_junior\",\r\n//   \"nom\": \"Bitcoin (BTC)\",\r\n//   \"valeur\": 25000,\r\n//   \"categorie\": \"Crypto\"\r\n// }\r\n\r\n// {\r\n//   \"user_id\": \"abdoul_junior\",\r\n//   \"nom\": \"Solana (SOL)\",\r\n//   \"valeur\": 4000000,\r\n//   \"categorie\": \"Crypto\"\r\n// }\r\n\r\n// {\r\n//     \"user_id\": \"abdoul_junior\",\r\n//     \"nom\": \"Terrain Bingerville\",\r\n//     \"valeur\": 600000,\r\n//     \"categorie\": \"Immobilier\"\r\n// }\r\n\r\n// {\r\n//     \"user_id\": \"abdoul_junior\",\r\n//     \"nom\": \"Actions Sodeci\",\r\n//     \"valeur\": 50000,\r\n//     \"categorie\": \"Bourse\"\r\n// }\r\n\r\n// {\r\n//     \"user_id\": \"abdoul_junior\",\r\n//     \"nom\": \"Compte Épargne\",\r\n//     \"valeur\": 2000000,\r\n//     \"categorie\": \"Liquidités\"\r\n// }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/ajouter-actif",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "ajouter-actif"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ajouter-transaction",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "// {\r\n//   \"user_id\": \"abdoul_junior\",\r\n//   \"type\": \"Dépense\",\r\n//   \"amount\": 30000,\r\n//   \"category\": \"Internet\",\r\n//   \"description\": \"Internet pour naviguer\"\r\n// }\r\n\r\n// {\r\n//   \"user_id\": \"abdoul_junior\",\r\n//   \"type\": \"Revenu\",\r\n//   \"amount\": 400000,\r\n//   \"category\": \"Salaire\",\r\n//   \"description\": \"Virement mensuel NGSER\"\r\n// }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/ajouter-transaction",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "ajouter-transaction"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "notifications",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/notifications/abdoul_junior",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "notifications",
+            "abdoul_junior"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
