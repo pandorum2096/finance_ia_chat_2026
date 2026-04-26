@@ -1,0 +1,56 @@
+Pour passer d'un simple chat à un véritable système expert proactif, tu dois structurer tes données de manière à ce que l'IA puisse "voir" l'évolution du patrimoine de l'utilisateur.
+Voici comment structurer ton architecture pour gérer les revenus, les dépenses et le portefeuille.
+
+1️⃣ Étape : Structurer la Base de Données (SQLAlchemy)
+Tu dois créer des tables pour stocker les actifs et les transactions. Modifie ton fichier database.py pour ajouter ces modèles :
+
+
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
+
+# Table pour le patrimoine (Crypto, Actions, Biens)
+class Asset(Base):
+    __tablename__ = "assets"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String)
+    category = Column(String) # 'Crypto', 'Bourse', 'Physique'
+    name = Column(String)     # 'BTC', 'Action Apple', 'Villa'
+    value = Column(Float)     # Valeur actuelle en Francs CFA
+
+# Table pour les flux (Revenus et Dépenses)
+class Transaction(Base):
+    __tablename__ = "transactions"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String)
+    type = Column(String)     # 'Revenu' ou 'Dépense'
+    amount = Column(Float)
+    category = Column(String) # 'Salaire', 'Loyer', 'Loisir'
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

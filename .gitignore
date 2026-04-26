@@ -1,0 +1,32 @@
+# Environnement virtuel (le plus important)
+venv/
+ENV/
+env/
+.env
+.venv
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / Packages
+dist/
+build/
+*.egg-info/
+
+# Base de données locale (SQLite)
+# Attention : ne l'ajoute que si tu veux que chaque dev ait sa propre base vide
+*.sqlite3
+*.db
+
+# Environnement / Secrets
+.env
+.flaskenv
+
+# IDE (VS Code, PyCharm)
+.vscode/
+.idea/
+
+# Logs
+*.log

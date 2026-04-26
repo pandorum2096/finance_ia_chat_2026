@@ -1,0 +1,86 @@
+Architecture Technique
+Pour un chat IA, nous allons utiliser :
+•	FastAPI : Pour le backend et l'API.
+•	LangChain : Pour orchestrer la logique de l'IA (mémoire, prompt financier).
+•	OpenAI (ou un modèle local comme Llama 3) : Comme cerveau de l'IA.
+•	WebSockets : Pour une discussion fluide en temps réel (ou REST pour du simple message/réponse).
+
+📂 Structure du Projet
+
+finance-ai/
+├── .env                # Clés API (OpenAI, etc.)
+├── main.py             # Point d'entrée FastAPI
+├── brain.py            # Logique LangChain et IA
+├── finance_utils.py    # Fonctions de calcul (Effort, Intérêts)
+└── requirements.txt    # Dépendances
+
+Commande : pip install -r requirements.txt
+
+
+1️⃣ Étape : Installer Ollama sur ton PC
+Va sur ollama.com et télécharge la version Windows. : https://ollama.com/
+
+Installe-le et lance l'application.
+
+Ouvre un terminal (PowerShell ou CMD) et télécharge le modèle Llama 3 (le plus performant pour sa taille) : ollama run llama3  [Laisse-le télécharger les ~4.7 Go. Une fois fini, tu peux fermer ce terminal.]
+
+2️⃣ Étape : Mettre à jour tes dépendances
+Ollama s'intègre parfaitement avec LangChain via un module spécifique. Dans ton environnement virtuel (venv), installe ceci : pip install langchain-community
+
+3️⃣ Étape : Modifier brain.py pour le local
+Le code change très peu. On remplace simplement la connexion à OpenAI par celle d'Ollama. Ollama tourne par défaut sur l'adresse http://localhost:11434.
+
+4️⃣ Étape : Lancer et Tester
+Assure-toi que l'icône Ollama est bien visible dans ta barre des tâches.
+
+Lance ton serveur FastAPI : python main.py
+Fais ton test via http://127.0.0.1:8000/docs.
+
+
+Mettre Ollama sur un serveur est une excellente étape pour rendre ton application accessible à d'autres utilisateurs (ou à ton application mobile en dehors de ton réseau local).
+
+Voici les 3 étapes cruciales pour réussir ce déploiement.
+
+1. Configuration du Serveur (Linux recommandé)
+Ollama tourne beaucoup mieux sur Linux (Ubuntu par exemple). Une fois ton serveur prêt :
+
+Installer Ollama :curl -fsSL https://ollama.com/install.sh | sh
+
+Configuration du port (L'étape la plus importante) :
+Par défaut, Ollama n'écoute que sur 127.0.0.1 (local). Pour qu'il réponde à ton backend FastAPI, il doit écouter sur toutes les interfaces. Tu dois créer un fichier de configuration :
+
+sudo systemctl edit ollama.service
+
+Ajoute ces lignes dans le fichier qui s'ouvre :
+
+[Service]
+Environment="OLLAMA_HOST=0.0.0.0"
+
+sudo systemctl daemon-reload
+sudo systemctl restart ollama
+
+2. Sécuriser l'accès (Le pare-feu)
+Attention : Si tu ouvres le port 11434 au monde entier, n'importe qui peut utiliser ton serveur et saturer ton processeur.
+
+Option A (Sécurisée) : Si ton backend FastAPI est sur le même serveur que Ollama, garde Ollama en 127.0.0.1 et laisse-les discuter en interne.
+
+Option B (Distance) : Si ton backend est ailleurs, autorise seulement l'adresse IP de ton backend à accéder au port 11434 du serveur Ollama via ton pare-feu (UFW sur Ubuntu) : sudo ufw allow from [IP_DE_TON_BACKEND] to any port 11434
+sudo ufw allow from [IP_DE_TON_BACKEND] to any port 11434
+
+💡 Conseils pour un serveur de production
+Le GPU est indispensable : Si tu n'as pas de carte graphique (GPU) sur ton serveur, l'IA sera très lente (elle tournera sur le CPU). Pour une application fluide, cherche des serveurs avec NVIDIA Tesla ou A100/L4.
+
+L'alternative "Cloud GPU" : Si tu ne veux pas gérer le serveur, tu peux utiliser des services comme RunPod ou Lambda Labs qui te donnent une instance avec Ollama pré-installé sur une carte graphique puissante.
+
+Docker : Tu peux aussi déployer Ollama via Docker pour simplifier la gestion : docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+
+Résumé
+Pour que ça marche, ton serveur Ollama doit :
+
+Avoir le service Ollama actif.
+
+Avoir téléchargé le modèle (ollama pull llama3).
+
+Être configuré pour accepter les connexions externes (OLLAMA_HOST=0.0.0.0).
+
+Avoir son port 11434 ouvert dans le pare-feu.
