@@ -10,6 +10,7 @@ from database import SessionLocal, ChatMessage, Asset, Transaction, Notification
 from analysis import analyser_flux_financier, analyser_patrimoine_et_conseiller
 from scheduler_tasks import job_conseil_financier
 from apscheduler.schedulers.background import BackgroundScheduler
+from fastapi.responses import HTMLResponse
 
 # --- GESTION DU CYCLE DE VIE (LIFESPAN) ---
 # Remplace avantageusement @app.on_event("startup") et "shutdown"
@@ -84,7 +85,7 @@ async def chat_with_history(req: ChatRequest, db: Session = Depends(get_db)):
     db.add(ai_msg)
     db.commit()
     
-    return {"user_id": req.user_id, "answer": response_text}
+    return {"user_id": req.user_id, "response": response_text}
 
 @app.post("/ajouter-actif")
 async def add_asset(payload: ActifSchema, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
@@ -129,6 +130,83 @@ async def mark_all_as_read(user_id: str, db: Session = Depends(get_db)):
     db.query(Notification).filter_by(user_id=user_id).update({"is_read": True})
     db.commit()
     return {"message": "Notifications marquées comme lues"}
+
+
+@app.get("/", response_class=HTMLResponse)
+async def get_chat_interface():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>FINORIS - Chat Architecte</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+            #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+            .message { max-width: 80%; padding: 12px; border-radius: 15px; margin: 5px 0; line-height: 1.4; position: relative; }
+            .user { align-self: flex-end; background: #1a237e; color: white; border-bottom-right-radius: 2px; }
+            .bot { align-self: flex-start; background: white; border: 1px solid #ddd; border-bottom-left-radius: 2px; white-space: pre-wrap; }
+            #input-area { background: white; padding: 20px; display: flex; gap: 10px; border-top: 2px solid #ddd; }
+            input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 5px; outline: none; }
+            button { background: #1a237e; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+            button:disabled { background: #ccc; }
+            .header { background: #1a237e; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em; }
+        </style>
+    </head>
+    <body>
+        <div class="header">🛡️ FINORIS - L'Architecte</div>
+        <div id="chat-container"></div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Parle à l'Architecte..." onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button id="send-btn" onclick="sendMessage()">Envoyer</button>
+        </div>
+
+        <script>
+            const chatContainer = document.getElementById('chat-container');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const USER_ID = "abdoul_junior"; // On simule l'ID pour le test
+
+            function appendMessage(text, isUser) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+                msgDiv.textContent = text;
+                chatContainer.appendChild(msgDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            async function sendMessage() {
+                const text = userInput.value.trim();
+                if (!text) return;
+
+                appendMessage(text, true);
+                userInput.value = '';
+                userInput.disabled = true;
+                sendBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: USER_ID, message: text })
+                    });
+                    const data = await response.json();
+                    appendMessage(data.response, false);
+                } catch (e) {
+                    appendMessage("❌ Erreur de connexion avec l'Architecte.", false);
+                } finally {
+                    userInput.disabled = false;
+                    sendBtn.disabled = false;
+                    userInput.focus();
+                }
+            }
+        </script>
+    </body>
+    </html>
+    """
+
+
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
