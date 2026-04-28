@@ -131,31 +131,46 @@ async def mark_all_as_read(user_id: str, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Notifications marquées comme lues"}
 
-
 @app.get("/", response_class=HTMLResponse)
 async def get_chat_interface():
     return """
     <!DOCTYPE html>
-    <html>
+    <html lang="fr">
     <head>
         <title>FINORIS - Chat Architecte</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
             body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+            .header { background: #1a237e; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em; }
+            
+            /* Nouvelle barre pour gérer l'utilisateur */
+            .user-bar { background: #e8eaf6; padding: 10px 20px; display: flex; gap: 10px; align-items: center; justify-content: center; border-bottom: 1px solid #c5cae9; }
+            .user-bar input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; color: #1a237e; }
+            .user-bar button { background: #3949ab; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+            .user-bar button:hover { background: #283593; }
+
             #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
             .message { max-width: 80%; padding: 12px; border-radius: 15px; margin: 5px 0; line-height: 1.4; position: relative; }
             .user { align-self: flex-end; background: #1a237e; color: white; border-bottom-right-radius: 2px; }
             .bot { align-self: flex-start; background: white; border: 1px solid #ddd; border-bottom-left-radius: 2px; white-space: pre-wrap; }
+            
             #input-area { background: white; padding: 20px; display: flex; gap: 10px; border-top: 2px solid #ddd; }
-            input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 5px; outline: none; }
-            button { background: #1a237e; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-            button:disabled { background: #ccc; }
-            .header { background: #1a237e; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em; }
+            #input-area input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 5px; outline: none; }
+            #send-btn { background: #1a237e; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+            #send-btn:disabled { background: #ccc; }
         </style>
     </head>
     <body>
         <div class="header">🛡️ FINORIS - L'Architecte</div>
+        
+        <div class="user-bar">
+            <label for="user-id-input">👤 Compte actif :</label>
+            <input type="text" id="user-id-input" value="abdoul_junior">
+            <button onclick="switchUser()">Connecter</button>
+        </div>
+
         <div id="chat-container"></div>
+        
         <div id="input-area">
             <input type="text" id="user-input" placeholder="Parle à l'Architecte..." onkeypress="if(event.key === 'Enter') sendMessage()">
             <button id="send-btn" onclick="sendMessage()">Envoyer</button>
@@ -165,7 +180,21 @@ async def get_chat_interface():
             const chatContainer = document.getElementById('chat-container');
             const userInput = document.getElementById('user-input');
             const sendBtn = document.getElementById('send-btn');
-            const USER_ID = "abdoul_junior"; // On simule l'ID pour le test
+            
+            // L'ID n'est plus fixe, il prend la valeur du champ texte
+            let currentUserId = document.getElementById('user-id-input').value.trim();
+
+            // Fonction pour changer d'utilisateur
+            function switchUser() {
+                const newId = document.getElementById('user-id-input').value.trim();
+                if (!newId) {
+                    alert("Veuillez entrer un identifiant valide.");
+                    return;
+                }
+                currentUserId = newId;
+                chatContainer.innerHTML = ''; // On efface les messages de l'écran
+                loadHistory(); // On charge le nouvel historique
+            }
 
             function appendMessage(text, isUser) {
                 const msgDiv = document.createElement('div');
@@ -173,6 +202,20 @@ async def get_chat_interface():
                 msgDiv.textContent = text;
                 chatContainer.appendChild(msgDiv);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            async function loadHistory() {
+                try {
+                    const response = await fetch(`/chat-history/${currentUserId}`);
+                    if (!response.ok) return; // Si la route n'existe pas encore
+                    const messages = await response.json();
+                    
+                    messages.forEach(msg => {
+                        appendMessage(msg.content, msg.role === 'user');
+                    });
+                } catch (e) {
+                    console.error("Erreur lors du chargement de l'historique", e);
+                }
             }
 
             async function sendMessage() {
@@ -188,7 +231,7 @@ async def get_chat_interface():
                     const response = await fetch('/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ user_id: USER_ID, message: text })
+                        body: JSON.stringify({ user_id: currentUserId, message: text }) // On utilise currentUserId ici !
                     });
                     const data = await response.json();
                     appendMessage(data.response, false);
@@ -200,13 +243,13 @@ async def get_chat_interface():
                     userInput.focus();
                 }
             }
+
+            // On charge l'historique du compte par défaut au démarrage
+            window.onload = loadHistory;
         </script>
     </body>
     </html>
     """
-
-
-
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
