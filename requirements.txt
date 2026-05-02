@@ -68,7 +68,7 @@ prometheus-fastapi-instrumentator==7.0.0
 prometheus_client==0.21.1
 protobuf==5.29.2
 psycopg==3.2.3
-psycopg2==2.9.10
+psycopg2-binary==2.9.10
 psycopg2-binary==2.9.10
 pyasn1==0.6.1
 pycparser==2.22
