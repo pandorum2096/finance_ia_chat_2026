@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse
 from instances import coach, scheduler, manager
 
 # 2. Import des tâches (maintenant possible car scheduler_tasks ne dépend plus de main)
-from scheduler_tasks import job_conseil_financier
+from scheduler_tasks import job_conseil_financier, job_conseil_financier_global
 
 # 3. Tes imports locaux restants
 from database import SessionLocal, ChatMessage, Asset, Transaction, Notification
@@ -24,10 +24,9 @@ async def lifespan(app: FastAPI):
     print("🚀 Démarrage du système de l'Architecte...")
     scheduler.add_job(
         id="conseil_quotidien",
-        func=job_conseil_financier,
+        func=job_conseil_financier_global,
         trigger="interval",
         minutes=1,
-        args=["abdoul_junior"] # Supprime 'coach' d'ici, on l'importera directement dans la tâche
     )
     scheduler.start()
     yield
@@ -179,7 +178,7 @@ async def get_chat_interface():
         <div class="header">🛡️ FINORIS - L'Architecte</div>
         
         <div class="user-bar">
-            👤 <input type="text" id="user-id-input" value="abdoul_junior">
+            👤 <input type="text" id="user-id-input" value="">
             <button onclick="switchUser()">Connecter</button>
         </div>
 

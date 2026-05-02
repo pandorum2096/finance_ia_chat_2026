@@ -12,3 +12,7 @@ WebSockets : Pour une discussion fluide en temps réel (ou REST pour du simple m
 venv\Scripts\activate
 
 pip install -r requirements.txt
+
+python main.py
+
+version v1.0.0
