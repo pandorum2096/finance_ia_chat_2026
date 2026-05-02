@@ -15,4 +15,4 @@ pip install -r requirements.txt
 
 python main.py
 
-version v1.0.0
+version v1.0.0 - Architecte
